@@ -49,6 +49,7 @@
     width: 150px; height: 150px;
     background-size: 300px 300px;
     cursor: pointer;
+    border-radius: 10px;
   }
 
   /* countdown */
@@ -88,7 +89,7 @@
 
   <!-- Puzzle -->
   <section id="game2" class="hidden">
-    <h2>Complete this Puzzle 🧩</h2>
+    <h2>Complete this Easy Puzzle 🧩</h2>
     <div id="puzzle"></div>
   </section>
 
@@ -131,7 +132,7 @@ function spawnHearts() {
   setTimeout(spawnHearts, 3000);
 }
 
-/* STEP 2 → Puzzle */
+/* STEP 2 → 2x2 Puzzle */
 function nextPuzzle() {
   document.getElementById('game1').classList.add('hidden');
   document.getElementById('game2').classList.remove('hidden');
