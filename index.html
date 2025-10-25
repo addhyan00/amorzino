@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sam's Surprise 💌</title>
+<style>
+  body {
+    margin: 0;
+    font-family: 'Dancing Script', cursive;
+    background: linear-gradient(135deg, #ffd1dc, #fff0f5);
+    overflow: hidden;
+    text-align: center;
+  }
+  h1, h2, p { color: #ff4081; }
+  button {
+    background-color: #ff80ab;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1.2em;
+    transition: 0.3s;
+  }
+  button:hover { background-color: #ff4081; }
+  .hidden { display: none; }
+
+  /* floating hearts */
+  .heart {
+    position: absolute;
+    color: #ff80ab;
+    font-size: 24px;
+    animation: float 5s linear infinite;
+  }
+  @keyframes float {
+    from { transform: translateY(100vh); opacity: 0.8; }
+    to { transform: translateY(-10vh); opacity: 0; }
+  }
+
+  /* puzzle grid */
+  #puzzle {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-gap: 3px;
+    margin: 20px auto;
+  }
+  .tile {
+    width: 100px; height: 100px;
+    background-size: 300px 300px;
+    cursor: pointer;
+  }
+
+  /* countdown */
+  #countdown {
+    font-size: 2em;
+    color: #e91e63;
+    margin-top: 30px;
+  }
+
+  #final img {
+    width: 250px;
+    border-radius: 15px;
+    margin-top: 20px;
+    opacity: 0;
+    animation: fadein 3s forwards;
+  }
+  @keyframes fadein {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Start Screen -->
+  <section id="start">
+    <h1>Hey Sam 💖</h1>
+    <p>Are you ready for your little surprise?</p>
+    <button onclick="startGame()">Start the Surprise 💌</button>
+  </section>
+
+  <!-- Catch Hearts -->
+  <section id="game1" class="hidden">
+    <h2>Catch 3 Hearts 💕</h2>
+    <p>Tap the floating hearts!</p>
+  </section>
+
+  <!-- Puzzle -->
+  <section id="game2" class="hidden">
+    <h2>Complete this Puzzle 🧩</h2>
+    <div id="puzzle"></div>
+  </section>
+
+  <!-- Countdown -->
+  <section id="count" class="hidden">
+    <h2>Countdown to Your Surprise 🎀</h2>
+    <div id="countdown"></div>
+  </section>
+
+  <!-- Final -->
+  <section id="final" class="hidden">
+    <h2>Surprise unlocked for my favorite person 💕</h2>
+    <img src="WhatsApp.jpg" alt="Surprise Image">
+  </section>
+
+<script>
+let heartsCaught = 0;
+
+/* STEP 1 → Hearts Game */
+function startGame() {
+  document.getElementById('start').classList.add('hidden');
+  document.getElementById('game1').classList.remove('hidden');
+  spawnHearts();
+}
+function spawnHearts() {
+  for (let i = 0; i < 10; i++) {
+    let heart = document.createElement('div');
+    heart.classList.add('heart');
+    heart.style.left = Math.random() * 90 + 'vw';
+    heart.style.animationDuration = 3 + Math.random() * 3 + 's';
+    heart.innerHTML = '💖';
+    heart.onclick = function() {
+      heart.remove();
+      heartsCaught++;
+      if (heartsCaught >= 3) nextPuzzle();
+    };
+    document.body.appendChild(heart);
+    setTimeout(() => heart.remove(), 6000);
+  }
+  setTimeout(spawnHearts, 3000);
+}
+
+/* STEP 2 → Puzzle */
+function nextPuzzle() {
+  document.getElementById('game1').classList.add('hidden');
+  document.getElementById('game2').classList.remove('hidden');
+  createPuzzle();
+}
+
+let tiles = [];
+function createPuzzle() {
+  const puzzle = document.getElementById('puzzle');
+  let arr = [...Array(9).keys()];
+  arr.sort(() => Math.random() - 0.5);
+  puzzle.innerHTML = '';
+  arr.forEach((i, idx) => {
+    let tile = document.createElement('div');
+    tile.className = 'tile';
+    if (i !== 8) {
+      tile.style.backgroundImage = "url('babu.jpg')";
+      tile.style.backgroundPosition = `${-(i%3)*100}px ${-Math.floor(i/3)*100}px`;
+      tile.onclick = () => moveTile(idx);
+    }
+    tiles.push(i);
+    puzzle.appendChild(tile);
+  });
+}
+
+function moveTile(index) {
+  const empty = tiles.indexOf(8);
+  const validMoves = [empty-1, empty+1, empty-3, empty+3];
+  if (validMoves.includes(index)) {
+    [tiles[index], tiles[empty]] = [tiles[empty], tiles[index]];
+    updatePuzzle();
+    if (isSolved()) startCountdown();
+  }
+}
+function updatePuzzle() {
+  const puzzle = document.getElementById('puzzle');
+  [...puzzle.children].forEach((tile, i) => {
+    let n = tiles[i];
+    if (n === 8) tile.style.backgroundImage = '';
+    else {
+      tile.style.backgroundImage = "url('babu.jpg')";
+      tile.style.backgroundPosition = `${-(n%3)*100}px ${-Math.floor(n/3)*100}px`;
+    }
+  });
+}
+function isSolved() {
+  return tiles.every((v,i) => v === i);
+}
+
+/* STEP 3 → Countdown */
+function startCountdown() {
+  document.getElementById('game2').classList.add('hidden');
+  document.getElementById('count').classList.remove('hidden');
+  const target = new Date("Nov 1, 2025 00:00:00").getTime();
+  const timer = setInterval(() => {
+    const now = new Date().getTime();
+    const diff = target - now;
+    if (diff <= 0) {
+      clearInterval(timer);
+      showFinal();
+      return;
+    }
+    const d = Math.floor(diff/(1000*60*60*24));
+    const h = Math.floor((diff%(1000*60*60*24))/(1000*60*60));
+    const m = Math.floor((diff%(1000*60*60))/(1000*60));
+    const s = Math.floor((diff%(1000*60))/1000);
+    document.getElementById("countdown").innerHTML =
+      `${d}d ${h}h ${m}m ${s}s left 💌`;
+  },1000);
+}
+
+/* STEP 4 → Final Message */
+function showFinal() {
+  document.getElementById('count').classList.add('hidden');
+  document.getElementById('final').classList.remove('hidden');
+}
+</script>
+</body>
+</html>
