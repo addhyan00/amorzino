@@ -41,12 +41,12 @@
   /* puzzle grid */
   #puzzle {
     display: grid;
-    grid-template-columns: repeat(3, 100px);
+    grid-template-columns: repeat(2, 150px);
     grid-gap: 3px;
     margin: 20px auto;
   }
   .tile {
-    width: 100px; height: 100px;
+    width: 150px; height: 150px;
     background-size: 300px 300px;
     cursor: pointer;
   }
@@ -141,42 +141,44 @@ function nextPuzzle() {
 let tiles = [];
 function createPuzzle() {
   const puzzle = document.getElementById('puzzle');
-  let arr = [...Array(9).keys()];
+  let arr = [...Array(4).keys()];
   arr.sort(() => Math.random() - 0.5);
+  tiles = [...arr];
   puzzle.innerHTML = '';
   arr.forEach((i, idx) => {
     let tile = document.createElement('div');
     tile.className = 'tile';
-    if (i !== 8) {
+    if (i !== 3) {
       tile.style.backgroundImage = "url('babu.jpg')";
-      tile.style.backgroundPosition = `${-(i%3)*100}px ${-Math.floor(i/3)*100}px`;
+      tile.style.backgroundPosition = `${-(i%2)*150}px ${-Math.floor(i/2)*150}px`;
       tile.onclick = () => moveTile(idx);
     }
-    tiles.push(i);
     puzzle.appendChild(tile);
   });
 }
 
 function moveTile(index) {
-  const empty = tiles.indexOf(8);
-  const validMoves = [empty-1, empty+1, empty-3, empty+3];
+  const empty = tiles.indexOf(3);
+  const validMoves = [empty-1, empty+1, empty-2, empty+2];
   if (validMoves.includes(index)) {
     [tiles[index], tiles[empty]] = [tiles[empty], tiles[index]];
     updatePuzzle();
     if (isSolved()) startCountdown();
   }
 }
+
 function updatePuzzle() {
   const puzzle = document.getElementById('puzzle');
   [...puzzle.children].forEach((tile, i) => {
     let n = tiles[i];
-    if (n === 8) tile.style.backgroundImage = '';
+    if (n === 3) tile.style.backgroundImage = '';
     else {
       tile.style.backgroundImage = "url('babu.jpg')";
-      tile.style.backgroundPosition = `${-(n%3)*100}px ${-Math.floor(n/3)*100}px`;
+      tile.style.backgroundPosition = `${-(n%2)*150}px ${-Math.floor(n/2)*150}px`;
     }
   });
 }
+
 function isSolved() {
   return tiles.every((v,i) => v === i);
 }
